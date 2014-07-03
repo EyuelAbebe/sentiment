@@ -78,8 +78,6 @@ def create_lists(label_list, matrix_list):
     while  (len(file_list_pos) + len(file_list_neg) ) > 0:
         end_pos = len(file_list_pos)
         end_neg = len(file_list_neg)
-        # print "------> pos", end_pos
-        # print "------> neg", end_neg
         if end_pos > 0 and end_neg > 0 :
             my_type = random.choice([1,-1])
         elif end_neg == 0 and end_pos == 0:
@@ -129,11 +127,6 @@ def make_classifier():
     label_list = []
     matrix_list = []
     matrix_list= create_lists(label_list, matrix_list)
-    print "----------->"
-    print label_list
-    print "----------->"
-    print matrix_list
-    print "----------->"
     lr = LR()
     lr.fit(matrix_list,label_list)
 
@@ -147,7 +140,14 @@ def test_classifier(lr):
     y = []
     for fn in os.listdir('test'):
         testfn.append(fn)
-        test[i] = vectorize(os.path.join('test',fn))
+        # test[i] = vectorize(os.path.join('test',fn))
+        file_ = os.path.join('test',fn)
+        with open(file_) as f:
+            file_text = f.read().split(' ')
+            file_text_vector = []
+            for word in vocab:
+                file_text_vector.append(file_text.count(word))
+        test[i] = file_text_vector
         ind = int(fn.split('_')[0][-1])
         y.append(1 if ind == 3 else -1)
         i += 1
@@ -171,4 +171,4 @@ if __name__=='__main__':
 
     lr = make_classifier()
 
-    # test_classifier(lr)
+    test_classifier(lr)
