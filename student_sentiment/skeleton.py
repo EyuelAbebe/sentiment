@@ -43,7 +43,7 @@ def buildvocab(pos=True):
     vocab_tuple = sorted(vocab_dict.iteritems(), key=operator.itemgetter(1), reverse=True)[0:10000]
     for item in vocab_tuple:
         vocab.append(item[0])
-
+    print '-----'
 
     # pos_dict = build_posneg_dict(pos_dir, pos_dict)
     # neg_dict = build_posneg_dict(neg_dir, neg_dict)
@@ -78,6 +78,8 @@ def create_lists(label_list, matrix_list):
     while  (len(file_list_pos) + len(file_list_neg) ) > 0:
         end_pos = len(file_list_pos)
         end_neg = len(file_list_neg)
+        # print "------> pos", end_pos
+        # print "------> neg", end_neg
         if end_pos > 0 and end_neg > 0 :
             my_type = random.choice([1,-1])
         elif end_neg == 0 and end_pos == 0:
@@ -100,7 +102,12 @@ def create_lists(label_list, matrix_list):
         my_index = random.randrange(0, end)
         label_list.append(my_type)
         file_name = file_[my_index]
-        file_.pop(my_index)
+
+        if file_ == file_list_pos:
+            file_list_pos.pop(my_index)
+        else:
+            file_list_neg.pop(my_index)
+
         # file_[my_index] = file_.pop()
 
         my_file = file_path+file_name
@@ -111,17 +118,22 @@ def create_lists(label_list, matrix_list):
                 file_text_vector.append(file_text.count(word))
         matrix_list.append(file_text_vector)
 
-        import numpy as np
-        matrix_list = np.matrix([ i for i in matrix_list])
-        file_text_vector = np.matrix([file_text_vector])
+    import numpy as np
+    matrix_list = np.matrix([ i for i in matrix_list])
+    file_text_vector = np.matrix([file_text_vector])
 
-        return file_text_vector, matrix_list
+    return matrix_list
 
 def make_classifier():
     #TODO: Build X matrix of vector representations of review files, and y vector of labels
     label_list = []
     matrix_list = []
-    label_list, matrix_list= create_lists(label_list, matrix_list)
+    matrix_list= create_lists(label_list, matrix_list)
+    print "----------->"
+    print label_list
+    print "----------->"
+    print matrix_list
+    print "----------->"
     lr = LR()
     lr.fit(matrix_list,label_list)
 
@@ -154,7 +166,9 @@ def test_classifier(lr):
 
 
 if __name__=='__main__':
+    # import pdb; pdb.set_trace()
     buildvocab()
+
     lr = make_classifier()
-    print lr
+
     # test_classifier(lr)
