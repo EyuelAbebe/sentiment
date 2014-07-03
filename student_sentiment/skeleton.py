@@ -2,6 +2,7 @@ import sys, os
 import numpy as np
 from operator import itemgetter as ig
 from sklearn.linear_model import LogisticRegression as LR
+import random
 
 vocab = [] #the features used in the classifier
 pos_dir = "/Users/muazzezmira/projects/sentiment/sentiment/student_sentiment/pos/"
@@ -104,14 +105,10 @@ def create_lists(label_list, matrix_list):
 
         my_file = file_path+file_name
         with open(my_file) as f:
-            file_text = f.read()
+            file_text = f.read().split(' ')
             file_text_vector = []
             for word in vocab:
-                word_counter = 0
-                while word in file_text:
-                    word_counter += 1
-                    file_text.remove(word)
-                file_text_vector.append(word_counter)
+                file_text_vector.append(file_text.count(word))
         matrix_list.append(file_text_vector)
 
         import numpy as np
@@ -159,4 +156,5 @@ def test_classifier(lr):
 if __name__=='__main__':
     buildvocab()
     lr = make_classifier()
-    test_classifier(lr)
+    print lr
+    # test_classifier(lr)
