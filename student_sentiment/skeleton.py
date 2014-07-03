@@ -68,82 +68,65 @@ def vectorize(fn):
     return vector
 
 
-def find_my_index(label_list, matrix_list):
+def create_lists(label_list, matrix_list):
     for  filename_pos in os.walk(pos_dir):
         file_list_pos = filename_pos[2]
     for  filename_neg in os.walk(neg_dir):
         file_list_neg = filename_neg[2]
-    end_pos = len(file_list_pos)
-    end_neg = len(file_list_neg)
-    if end_pos > 0 and end_neg > 0 :
-        my_type = random.choice([1,-1])
-    elif end_neg == 0 and end_pos == 0:
-        print "no review files left"
-        return
-    elif not end_pos:
-        my_type = -1
-    else:
-        my_type = 1
 
-    if my_type == 1:
-        end = end_pos
-        file_ = file_list_pos
-    else :
-        end = end_neg
-        file_ = file_list_neg
-
-    my_index = random.randrange(0, end)
-    label_list.append(my_type)
-    create_matrix (matrix_list, file_[my_index])
-    file_.pop(my_index)
-    # file_[my_index] = file_.pop()
-    return my_index
-
-
-
-
-
-def create_labels(label_list, num):
-    """
-    Creates Y vector
-    """
-    import random
-    while True:
-
-
-
-
-
-    for i in range(num):
-        m = random.choice([1,-1])
-
-        l = []
-        l[5] = 6
-
-
-        if m == 1:
-
-
+    while  (len(file_list_pos) + len(file_list_neg) ) > 0:
+        end_pos = len(file_list_pos)
+        end_neg = len(file_list_neg)
+        if end_pos > 0 and end_neg > 0 :
+            my_type = random.choice([1,-1])
+        elif end_neg == 0 and end_pos == 0:
+            print "no review files left"
+            return
+        elif not end_pos:
+            my_type = -1
         else:
+            my_type = 1
 
+        if my_type == 1:
+            end = end_pos
+            file_ = file_list_pos
+            file_path = pos_dir
+        else :
+            end = end_neg
+            file_ = file_list_neg
+            file_path = neg_dir
 
-        label_list.append(m)
-
-
-        my_type = 1 if random.randrange(0,2) else -1
-        my_word = find_my_index(mytype, file_list1, file_list2)
+        my_index = random.randrange(0, end)
         label_list.append(my_type)
-        label_list[my_index] = label_list.pop()
+        file_name = file_[my_index]
+        file_.pop(my_index)
+        # file_[my_index] = file_.pop()
+
+        my_file = file_path+file_name
+        with open(my_file) as f:
+            file_text = f.read()
+            file_text_vector = []
+            for word in vocab:
+                word_counter = 0
+                while word in file_text:
+                    word_counter += 1
+                    file_text.remove(word)
+                file_text_vector.append(word_counter)
+        matrix_list.append(file_text_vector)
+
+        import numpy as np
+        matrix_list = np.matrix([ i for i in matrix_list])
+        file_text_vector = np.matrix([file_text_vector])
+
+        return file_text_vector, matrix_list
 
 def make_classifier():
-   
     #TODO: Build X matrix of vector representations of review files, and y vector of labels
     label_list = []
-    label_list = create_labels(label_list, 100)
-
-    vactor_reps = [[]]
+    matrix_list = []
+    label_list, matrix_list= create_lists(label_list, matrix_list)
     lr = LR()
-    lr.fit(X,y)
+    lr.fit(matrix_list,label_list)
 
     return lr
 
@@ -176,4 +159,4 @@ def test_classifier(lr):
 if __name__=='__main__':
     buildvocab()
     lr = make_classifier()
-    # test_classifier(lr)
+    test_classifier(lr)
